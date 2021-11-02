@@ -17,13 +17,13 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const token = localStorage.getItem('user');
+    const token = sessionStorage.getItem('user');
     this.user = token;
     if (token === '' || token === null) {
       this.restService.getUser()
         .subscribe(data => {
           this.user = data;
-          localStorage.setItem('user', data);
+          sessionStorage.setItem('user', data);
         }, error => {
           this.user = 'fail';
         });
@@ -31,8 +31,7 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
-    console.log('logout!');
-    localStorage.removeItem('user');
+    sessionStorage.clear();
     this.router.navigate(['/']).then(() => {
       window.location.reload();
     });

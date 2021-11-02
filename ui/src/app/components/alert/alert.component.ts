@@ -53,7 +53,7 @@ export class AlertComponent {
           () => {
             this.closeAlert();
           },
-          10000
+          5000
         );
       }
     } else {

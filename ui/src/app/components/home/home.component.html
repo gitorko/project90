@@ -5,28 +5,49 @@
         <div class="alert-section">
           <app-alert></app-alert>
         </div>
-        <h2 style="text-align: center">Flash Sale</h2>
+
+        <h2 style="text-align: center">Flash Sale: {{itemCount}} items available</h2>
         <div style="text-align: center;">
-          <img src="assets/flashsale.png" width="400" height="400" style="text-align: center;">
+          <img src="assets/flashsale.png" width="200" height="200" style="text-align: center;">
           <br/>
-          <button type="submit" class="btn btn-primary" (click)="holdBooking()">Add to cart</button>
+          <clr-spinner [clrMedium]="true" *ngIf="spinner"></clr-spinner>
+          <p *ngIf="spinner"><b style="color:red;">Dont Refresh</b></p>
+          <button type="submit" class="btn btn-primary" (click)="addToCart()" *ngIf="showAddToCartButton">
+            Add to cart
+          </button>
         </div>
+        <br/>
+        <br/>
+        <h2 style="text-align: center">My Cart</h2>
+        <clr-datagrid>
+          <clr-dg-column>Name</clr-dg-column>
+          <clr-dg-column>Price</clr-dg-column>
+          <clr-dg-column>Cart Of</clr-dg-column>
+          <clr-dg-column>Added On</clr-dg-column>
+          <clr-dg-column>Action</clr-dg-column>
+          <!-- structural directive -->
+          <clr-dg-row clr-dg-row *clrDgItems="let item of items">
+            <clr-dg-placeholder class="content-center">No Items in Cart!</clr-dg-placeholder>
+            <clr-dg-cell>{{item.name}}</clr-dg-cell>
+            <clr-dg-cell>{{item.price}}</clr-dg-cell>
+            <clr-dg-cell>{{item.cartOf}}</clr-dg-cell>
+            <clr-dg-cell>{{item.addedOn}}</clr-dg-cell>
+            <clr-dg-cell>
+              <cds-icon shape="trash" style="cursor: pointer; color: blue" (click)="deleteCartFor(item.id)">
+              </cds-icon>
+            </clr-dg-cell>
+          </clr-dg-row>
+
+          <clr-dg-footer>
+            <clr-dg-pagination #pagination [clrDgPageSize]="10">
+              <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">Items per page</clr-dg-page-size>
+              {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}} of {{pagination.totalItems}} items
+            </clr-dg-pagination>
+          </clr-dg-footer>
+        </clr-datagrid>
 
       </div>
     </div>
   </div>
 </div>
 
-<!--Pay Modal-->
-<clr-modal [(clrModalOpen)]="payModal" [clrModalClosable]="false">
-  <h3 class="modal-title">Pay & Confirm</h3>
-  <div class="modal-body">
-    <p>You have 30 Secs to complete the payment!</p>
-    <p *ngFor="let item of selected;index as i">{{i + 1}}. {{item.seatNumber}}</p>
-    <p>Total Amount: {{getTotal()}} Rs.</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-outline" (click)="cancelBooking()">Cancel</button>
-    <button type="button" class="btn btn-primary" (click)="confirmBooking()">Confirm</button>
-  </div>
-</clr-modal>

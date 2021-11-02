@@ -1,12 +1,9 @@
 package com.demo.project90;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.IntStream;
 
-import com.demo.project90.domain.Ticket;
-import com.demo.project90.repo.TicketRepository;
+import com.demo.project90.domain.Item;
+import com.demo.project90.repo.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +17,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class Main implements CommandLineRunner {
 
     @Autowired
-    TicketRepository ticketRepo;
+    ItemRepository itemRepo;
 
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
@@ -29,16 +26,14 @@ public class Main implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("Seeding test data!");
-        List<String> city = Arrays.asList("London", "New York", "Bangalore");
-        ticketRepo.deleteAll();
-        IntStream.range(1, 51).forEach(i -> {
-            ticketRepo.save(Ticket.builder()
-                    .seatNumber("Seat_" + i)
-                    .eventDate(LocalDate.now())
-                    .lockedBy("")
-                    .bookedBy("")
-                    .price(10.0)
+        itemRepo.deleteAll();
+        IntStream.range(1, 6).forEach(i -> {
+            itemRepo.save(Item.builder()
+                    .name("iphone_" + i)
+                    .type("iphone11")
+                    .price(899.0)
                     .build());
         });
     }
+
 }

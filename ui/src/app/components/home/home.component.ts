@@ -1,10 +1,9 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Ticket} from '../../models/ticket';
 import {RestService} from '../../services/rest.service';
 import {Router} from '@angular/router';
-import {ClarityIcons, trashIcon} from '@cds/core/icon';
 import {AlertComponent} from '../alert/alert.component';
-import {BookingRequest} from '../../models/booking-request';
+import {ClarityIcons, trashIcon} from '@cds/core/icon';
+import {Item} from "../../models/item";
 
 @Component({
   selector: 'app-home',
@@ -13,102 +12,99 @@ import {BookingRequest} from '../../models/booking-request';
 })
 export class HomeComponent implements OnInit {
 
-  tickets: Ticket[] = [];
-  ticket: Ticket = new Ticket();
-  selected: Ticket[] = [];
+  items: Item[] = [];
+  itemCount = 0;
   // @ts-ignore
   @ViewChild(AlertComponent, {static: true}) private alert: AlertComponent;
-  payModal = false;
+  spinner = false;
+  showAddToCartButton = true;
+  token = '';
 
   constructor(private restService: RestService, private router: Router) {
     ClarityIcons.addIcons(trashIcon);
   }
 
   ngOnInit(): void {
-    this.getTickets();
+    this.refresh();
+    this.token = '';
   }
 
-  getTickets(): void {
-    this.ticket = new Ticket();
-    this.restService.getTickets().subscribe(data => {
-      this.tickets = data;
+  refresh(): void {
+    this.getCartItems();
+    this.getItemCount();
+  }
+
+  getCartItems(): void {
+    const username = sessionStorage.getItem('user');
+    this.restService.getCartItems(username).subscribe(data => {
+      this.items = data;
+      if (this.items.length > 0) {
+        this.showAddToCartButton = false;
+      }
     });
   }
 
-  holdBooking(): void {
-    const request = new BookingRequest();
-    request.ticketIds = [];
-    request.user = localStorage.getItem('user');
-    this.selected.forEach(item => {
-      request.ticketIds.push(Number(item.id));
+  getItemCount(): void {
+    this.restService.getFreeItemCount().subscribe(data => {
+      this.itemCount = data;
+      if (this.itemCount === 0) {
+        this.showAddToCartButton = false;
+      }
     });
-    this.restService.holdBooking(request)
+  }
+
+  addToCart(): void {
+    const username = sessionStorage.getItem('user');
+    this.showAddToCartButton = false;
+    this.spinner = true;
+    this.restService.addCartItem(username)
+      .subscribe(data => {
+        if (data) {
+          this.token = data.token;
+          this.alert.showSuccess('In Queue!');
+        } else {
+          this.alert.showError('Failed to enter Queue!');
+        }
+        this.checkIfComplete();
+      });
+  }
+
+  checkIfComplete(): void {
+    this.restService.getAuditToken(this.token)
       .subscribe(data => {
           if (data) {
-            this.payModal = true;
-          } else {
-            this.alert.showError('Ticket is already reserved, Try again!');
-            this.getTickets();
+            if (data.type === 'SUCCESS') {
+              this.alert.showSuccess(data.message);
+            } else {
+              this.alert.showError(data.message);
+            }
+            this.refresh();
+            this.spinner = false;
           }
         },
         error => {
-          this.alert.showError('Ticket is already reserved, Try again!');
-          this.getTickets();
+          console.log('attempting to add to cart...');
+          setTimeout(
+            () => {
+              this.checkIfComplete();
+            },
+            5000
+          );
         });
-
   }
 
-  cancelBooking(): void {
-    const request = new BookingRequest();
-    request.ticketIds = [];
-    request.user = localStorage.getItem('user');
-    this.selected.forEach(item => {
-      request.ticketIds.push(Number(item.id));
-    });
-    this.restService.cancelBooking(request)
-      .subscribe(data => {
-        this.payModal = false;
-      });
-  }
-
-  confirmBooking(): void {
-    const request = new BookingRequest();
-    request.ticketIds = [];
-    request.user = localStorage.getItem('user');
-    this.selected.forEach(item => {
-      request.ticketIds.push(Number(item.id));
-    });
-    this.restService.bookTicket(request)
+  deleteCartFor(id: any): void {
+    const username = sessionStorage.getItem('user');
+    this.restService.deleteCartItem(username, id)
       .subscribe(data => {
         if (data) {
-          this.alert.showSuccess('Ticket booked successfully!');
+          this.items = [];
+          this.alert.showSuccess('Deleted from cart!');
         } else {
-          this.alert.showError('Ticket booking failed!');
+          this.alert.showError('Failed to delete from cart!');
         }
-        this.payModal = false;
-        this.getTickets();
+        this.refresh();
       });
-  }
-
-  getTotal(): number {
-    let sum = 0;
-    this.selected.forEach(item => {
-      // @ts-ignore
-      sum += item.price;
-    });
-    return sum;
-  }
-
-  getSeatStatus(ticket: Ticket): string {
-    // @ts-ignore
-    if (ticket.lockedBy !== '') {
-      return 'RESERVED';
-    }
-    if (ticket.booked) {
-      return 'BOOKED';
-    } else {
-      return 'AVAILABLE';
-    }
   }
 
 }
