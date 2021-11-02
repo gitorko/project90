@@ -1,0 +1,32 @@
+<div class="content-container">
+  <div class="content-area">
+    <div class="clr-row">
+      <div class="clr-col-12">
+        <div class="alert-section">
+          <app-alert></app-alert>
+        </div>
+        <h2 style="text-align: center">Flash Sale</h2>
+        <div style="text-align: center;">
+          <img src="assets/flashsale.png" width="400" height="400" style="text-align: center;">
+          <br/>
+          <button type="submit" class="btn btn-primary" (click)="holdBooking()">Add to cart</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Pay Modal-->
+<clr-modal [(clrModalOpen)]="payModal" [clrModalClosable]="false">
+  <h3 class="modal-title">Pay & Confirm</h3>
+  <div class="modal-body">
+    <p>You have 30 Secs to complete the payment!</p>
+    <p *ngFor="let item of selected;index as i">{{i + 1}}. {{item.seatNumber}}</p>
+    <p>Total Amount: {{getTotal()}} Rs.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="cancelBooking()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="confirmBooking()">Confirm</button>
+  </div>
+</clr-modal>
