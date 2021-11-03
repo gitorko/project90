@@ -1,6 +1,6 @@
 # Project90
 
-Flash sale system
+Flash Sale + RabbitMQ + Postgres + Jmeter
 
 ## Setup
 
@@ -19,6 +19,11 @@ grant all PRIVILEGES ON DATABASE "test-db" to test;
 
 ```
 docker run -d -p 5672:5672 -p 15672:15672 --name my-rabbit rabbitmq:3-management
+```
+
+```bash
+user: guest
+user: guest
 ```
 
 ### Dev
@@ -52,5 +57,12 @@ java -jar project90-1.0.0.jar
 
 Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
 
+### JMeter & Selenium
 
+[https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads)
+
+```bash
+brew install jmeter
+xattr -d com.apple.quarantine chromedriver
+```
 
