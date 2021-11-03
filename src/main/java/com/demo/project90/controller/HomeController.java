@@ -1,5 +1,6 @@
 package com.demo.project90.controller;
 
+import static com.demo.project90.config.Constant.ITEM_QUEUE;
 import static com.demo.project90.config.Constant.ITEM_SALE_NOT_STARTED_MSG;
 import static com.demo.project90.config.Constant.TOKEN_QUEUE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -11,11 +12,13 @@ import java.util.UUID;
 import com.demo.project90.domain.Audit;
 import com.demo.project90.domain.Item;
 import com.demo.project90.model.QEvent;
+import com.demo.project90.model.QItem;
 import com.demo.project90.repo.AuditRepository;
 import com.demo.project90.repo.ItemRepository;
 import com.demo.project90.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +35,7 @@ public class HomeController {
     private final ItemRepository itemRepo;
     private final AuditRepository auditRepo;
     private final AuditService auditService;
+    private final ConnectionFactory connectionFactory;
 
     @GetMapping(value = "/api/user")
     public String getUser() {
@@ -79,8 +83,10 @@ public class HomeController {
                 e.setCartOf(null);
                 e.setAddedOn(null);
                 itemRepo.save(e);
+                pushAvailableItem(QItem.builder().itemId(id).build());
             }
         });
+
         return true;
     }
 
@@ -91,5 +97,9 @@ public class HomeController {
         } else {
             throw new ResponseStatusException(NOT_FOUND, "token not found!");
         }
+    }
+
+    private void pushAvailableItem(QItem qItem) {
+        template.convertAndSend(ITEM_QUEUE, qItem);
     }
 }

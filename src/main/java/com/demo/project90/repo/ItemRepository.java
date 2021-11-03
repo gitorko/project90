@@ -9,6 +9,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Item findFirstByCartOfIsNull();
 
+    Item findByIdAndCartOfIsNull(Long itemId);
+
     Iterable<Item> findAllByCartOf(String username);
 
     long countAllByCartOfIsNull();

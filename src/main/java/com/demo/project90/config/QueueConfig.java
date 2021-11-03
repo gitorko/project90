@@ -1,5 +1,6 @@
 package com.demo.project90.config;
 
+import static com.demo.project90.config.Constant.ITEM_QUEUE;
 import static com.demo.project90.config.Constant.TOKEN_QUEUE;
 
 import org.springframework.amqp.core.Queue;
@@ -14,8 +15,13 @@ import org.springframework.context.annotation.Configuration;
 public class QueueConfig {
 
     @Bean
-    public Queue hello() {
-        return new Queue(TOKEN_QUEUE, false);
+    public Queue tokenQueue() {
+        return new Queue(TOKEN_QUEUE, true);
+    }
+
+    @Bean
+    public Queue itemQueue() {
+        return new Queue(ITEM_QUEUE, true);
     }
 
     @Bean
