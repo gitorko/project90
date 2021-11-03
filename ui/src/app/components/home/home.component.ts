@@ -19,7 +19,6 @@ export class HomeComponent implements OnInit {
   spinner = false;
   showAddToCartButton = true;
   token = '';
-  attempt = 0;
 
   constructor(private restService: RestService, private router: Router) {
     ClarityIcons.addIcons(trashIcon);
@@ -71,7 +70,6 @@ export class HomeComponent implements OnInit {
   }
 
   checkIfComplete(): void {
-    this.attempt = this.attempt + 1;
     this.restService.getAuditToken(this.token)
       .subscribe(data => {
           if (data) {
@@ -85,19 +83,12 @@ export class HomeComponent implements OnInit {
           }
         },
         error => {
-          console.log('attempting ' + this.attempt + ' to add to cart...');
-          // Will do a max of 5 attempts.
-          if (this.attempt < 3) {
-            setTimeout(
-              () => {
-                this.checkIfComplete();
-              },
-              5000
-            );
-          } else {
-            this.refresh();
-            this.spinner = false;
-          }
+          setTimeout(
+            () => {
+              this.checkIfComplete();
+            },
+            5000
+          );
         });
   }
 

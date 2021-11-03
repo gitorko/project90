@@ -2,7 +2,6 @@ package com.demo.project90.controller;
 
 import static com.demo.project90.config.Constant.ITEM_SALE_NOT_STARTED_MSG;
 import static com.demo.project90.config.Constant.TOKEN_QUEUE;
-import static com.demo.project90.queue.EventListener.checkIfSaleStarted;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.time.Duration;
@@ -14,6 +13,7 @@ import com.demo.project90.domain.Item;
 import com.demo.project90.model.QEvent;
 import com.demo.project90.repo.AuditRepository;
 import com.demo.project90.repo.ItemRepository;
+import com.demo.project90.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,6 +31,7 @@ public class HomeController {
     private final RabbitTemplate template;
     private final ItemRepository itemRepo;
     private final AuditRepository auditRepo;
+    private final AuditService auditService;
 
     @GetMapping(value = "/api/user")
     public String getUser() {
@@ -49,10 +50,6 @@ public class HomeController {
 
     @GetMapping(value = "/api/cart/{username}")
     public QEvent addCartItem(@PathVariable String username) {
-        if (!checkIfSaleStarted()) {
-            log.info(ITEM_SALE_NOT_STARTED_MSG);
-            return null;
-        }
         Instant start = Instant.now();
         log.info("username: {}", username);
         String token = UUID.randomUUID().toString();
@@ -61,18 +58,21 @@ public class HomeController {
                 .token(token)
                 .attemptCount(0)
                 .build();
-        template.convertAndSend(TOKEN_QUEUE, qEvent);
-        Instant finish = Instant.now();
-        log.info("Add to cart for {} took: {} ms", username, Duration.between(start, finish).toMillis());
-        return qEvent;
+        if (!auditService.checkIfSaleStarted()) {
+            auditService.saveAudit(ITEM_SALE_NOT_STARTED_MSG, qEvent.getUser(), qEvent.getToken(), -1l, "FAIL");
+            Instant finish = Instant.now();
+            log.info("Request rejected in: {} ms", username, Duration.between(start, finish).toMillis());
+            return qEvent;
+        } else {
+            template.convertAndSend(TOKEN_QUEUE, qEvent);
+            Instant finish = Instant.now();
+            log.info("Add to cart for {} took: {} ms", username, Duration.between(start, finish).toMillis());
+            return qEvent;
+        }
     }
 
     @DeleteMapping(value = "/api/cart/{username}/{id}")
     public boolean deleteCartItem(@PathVariable String username, @PathVariable Long id) {
-        if (!checkIfSaleStarted()) {
-            log.info(ITEM_SALE_NOT_STARTED_MSG);
-            return false;
-        }
         itemRepo.findById(id).ifPresent(e -> {
             //only user who owns the cart can delete
             if (e.getCartOf().equals(username)) {
