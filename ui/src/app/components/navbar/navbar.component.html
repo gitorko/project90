@@ -7,13 +7,13 @@
   </div>
   <div class="header-actions">
     <clr-dropdown>
-      <button class="nav-text" clrDropdownTrigger aria-label="open user profile">
+      <button class="nav-text" clrDropdownTrigger aria-label="open user profile" id="user-menu">
         <cds-icon shape="user"></cds-icon>
         {{user}}
         <cds-icon shape="angle" direction="down"></cds-icon>
       </button>
       <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
-        <a href="#" clrDropdownItem (click)="logout()">Log out</a>
+        <a href="#" clrDropdownItem (click)="logout()" id="logout">Log out</a>
       </clr-dropdown-menu>
     </clr-dropdown>
   </div>

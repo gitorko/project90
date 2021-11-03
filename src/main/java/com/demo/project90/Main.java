@@ -27,7 +27,7 @@ public class Main implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("Seeding test data!");
         itemRepo.deleteAll();
-        IntStream.range(1, 6).forEach(i -> {
+        IntStream.range(1, 101).forEach(i -> {
             itemRepo.save(Item.builder()
                     .name("iphone_" + i)
                     .type("iphone11")

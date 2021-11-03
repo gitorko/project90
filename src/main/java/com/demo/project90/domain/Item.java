@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -35,6 +37,8 @@ public class Item implements Serializable {
     @Column(name = "id")
     private Long id;
     @Size(max = 45)
+    @NotNull
+    @NotEmpty
     private String name;
     private String type;
     private Double price;

@@ -10,9 +10,10 @@
         <div style="text-align: center;">
           <img src="assets/flashsale.png" width="200" height="200" style="text-align: center;">
           <br/>
-          <clr-spinner [clrMedium]="true" *ngIf="spinner"></clr-spinner>
+          <clr-spinner [clrMedium]="true" *ngIf="spinner" id="spinner"></clr-spinner>
           <p *ngIf="spinner"><b style="color:red;">Dont Refresh</b></p>
-          <button type="submit" class="btn btn-primary" (click)="addToCart()" *ngIf="showAddToCartButton">
+          <button type="submit" class="btn btn-primary" (click)="addToCart()" *ngIf="showAddToCartButton"
+                  id="addToCart">
             Add to cart
           </button>
         </div>
