@@ -42,7 +42,7 @@ task cleanBuild(type: GradleBuild) {
 }
 
 bootJar {
-    from('./ui/dist/project90-ui') {
+    from('./ui/dist/ui') {
         into 'public'
     }
 }
