@@ -82,3 +82,10 @@ brew install jmeter
 xattr -d com.apple.quarantine chromedriver
 ```
 
+```bash
+docker build -f docker/Dockerfile --force-rm -t project90:1.0.0 .
+docker images
+docker tag project90:1.0.0 gitorko/project90:1.0.0
+docker push gitorko/project90:1.0.0
+docker-compose -f docker/docker-compose.yml up 
+```
