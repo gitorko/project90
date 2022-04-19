@@ -19,7 +19,7 @@ services:
       - /tmp/rabbitmq:/var/lib/rabbitmq
       - /tmp/rabbitmq:/var/log/rabbitmq
   web-server:
-    image: project90:1.0.0
+    image: gitorko/project90:1.0.0
     ports:
       - "8080:8080"
     links:
