@@ -9,7 +9,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - /tmp/pgdata:/var/lib/postgresql/data
+      - /tmp/pgdata90:/var/lib/postgresql/data
   rabbitmq:
     image: rabbitmq:3-management
     ports:
